@@ -1,0 +1,105 @@
+<?php
+
+/**
+* @file
+* A custom module for Gentle Ultimate Frisbee and organizing users in teams.
+*/
+
+/**
+* Implements hook_help.
+*
+* Displays help and module information.
+*
+* @param path
+*   Which path of the site we're using to display help
+* @param arg
+*   Array that holds the current path as returned from arg() function
+*/
+function gentle_teams_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#gentle_teams":
+      return '<p>' . t("A custom module for Gentle Ultimate Frisbee and organizing users in teams.") . '</p>';
+      break;
+  }
+}
+
+/**
+* Implementation of hook_menu
+*/
+function gentle_teams_menu() {
+    $items['admin/gentle_teams'] = array(
+        'title' => 'Teams',
+        'description' => 'Managing Gentle teams.',
+        'page callback' => 'gentle_teams_season_overview',
+        'page arguments' => array(1),
+        'access arguments' => array('manage gentle_teams'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+    
+    $items['admin/gentle_teams/seasons'] = array(
+        'title' => 'Seasons',
+        'description' => 'Overview of the Gentle seasons.',
+        'page callback' => 'gentle_teams_season_overview',
+        'page arguments' => array(1),
+        'access arguments' => array('manage gentle_teams'),
+        'type' => MENU_DEFAULT_LOCAL_TASK,
+        'weight' => 0
+    );
+
+    return $items;
+}
+
+/**
+ * Valid permissions for this module
+ * @return array An array of valid permissions for the gentle_teams module
+ */
+function gentle_teams_perm() {
+    return array('manage gentle_teams');
+}
+
+/**
+ * Implementation of hook_permission. Provides the permissions so they can be selected on the Permissions page.
+ */
+function gentle_teams_permission() {
+    return array(
+        'manage gentle_teams' => array(
+            'title' => t('Manage Gentle teams.'),
+            'description' => t('Allow a user to manage the Gentle Teams.')
+        ),
+    );
+}
+
+/**
+ * Returns the HTML for the seasons overview.
+ */
+function gentle_teams_season_overview() {
+    $header = array(
+        array(
+            'data' => 'Begin',
+            'field' => 'begin',
+            'sort' => 'asc'
+        ),
+        array(
+            'data' => 'End',
+            'field' => 'end'
+        )
+    );
+
+    $rows = array();
+
+    $rs = db_query('SELECT begin, end FROM {gentle_teams_season}');
+
+    foreach($rs as $row) {
+        $rows[] = array($row->begin, $row->end);
+    }
+
+    return theme_table(array(
+        'header' => $header,
+        'rows' => $rows,
+        'attributes' => array(),
+        'caption' => 'Seasons',
+        'colgroups' => array(),
+        'sticky' => TRUE,
+        'empty' => 'There are no seasons defined yet.'
+    ));
+}

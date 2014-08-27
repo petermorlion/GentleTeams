@@ -1,0 +1,35 @@
+<?php
+
+/**
+* @file
+* Install file for Gentle Teams module.
+*/
+
+/**
+ * Implements hook_schema().
+ */
+function gentle_teams_schema() {
+  $schema['gentle_teams_season'] = array(
+    'description' => 'Defines separate seasons',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique season ID.',
+      ),
+      'begin' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'The begin year of the season',
+      ),
+      'end' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'The end year of the season',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}
