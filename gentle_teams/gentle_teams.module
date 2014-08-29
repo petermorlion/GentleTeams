@@ -131,6 +131,7 @@ function gentle_teams_add_season_form() {
     $form['gentle_teams_add_season_begin'] = array(
         '#type' => 'select',
         '#title' => t('Begin'),
+        '#description' => t('The year when the season starts.'),
         '#options' => $years,
         '#default_value' => date('Y'),
     );
@@ -138,6 +139,7 @@ function gentle_teams_add_season_form() {
     $form['gentle_teams_add_season_end'] = array(
         '#type' => 'select',
         '#title' => t('End'),
+        '#description' => t('The year when the sesons ends.'),
         '#options' => $years,
         '#default_value' => date('Y') + 1,
     );
