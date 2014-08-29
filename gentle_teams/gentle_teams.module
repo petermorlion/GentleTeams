@@ -125,7 +125,7 @@ function gentle_teams_add_season_form() {
 
     $years = array();
     for ($i = 2010; $i <= 2050; $i++) {
-        $years[] = $i;
+        $years[$i] = $i;
     }
 
     $form['gentle_teams_add_season_begin'] = array(
@@ -133,15 +133,13 @@ function gentle_teams_add_season_form() {
         '#title' => t('Begin'),
         '#description' => t('The year when the season starts.'),
         '#options' => $years,
-        '#default_value' => date('Y'),
     );
 
     $form['gentle_teams_add_season_end'] = array(
         '#type' => 'select',
         '#title' => t('End'),
-        '#description' => t('The year when the sesons ends.'),
+        '#description' => t('The year when the season ends.'),
         '#options' => $years,
-        '#default_value' => date('Y') + 1,
     );
 
     $form['submit_button'] = array(
@@ -150,4 +148,33 @@ function gentle_teams_add_season_form() {
     );
 
     return $form;
+}
+
+/**
+ * Validating the form to add a season.
+ */
+function gentle_teams_add_season_form_validate($form, &$form_state) {
+    // TODO: check if season already exists
+    $begin = intval($form_state['values']['gentle_teams_add_season_begin']);
+    $end = intval($form_state['values']['gentle_teams_add_season_end']);
+    if ($begin > $end) {
+        form_set_error('gentle_teams_add_season_begin', t('The begin year must be smaller than or equal to the end year.'));
+    }
+}
+
+/**
+ * Submitting the form to add a season.
+ */
+function gentle_teams_add_season_form_submit($form, &$form_state) {
+    $begin = intval($form_state['values']['gentle_teams_add_season_begin']);
+    $end = intval($form_state['values']['gentle_teams_add_season_end']);
+    db_insert('gentle_teams_season')
+        ->fields(array(
+            'begin' => $begin,
+            'end' => $end,
+        ))
+        ->execute();
+
+    drupal_set_message(t('The season was added.'));
+    $form_state['redirect'] = 'admin/gentle_teams/seasons';
 }
