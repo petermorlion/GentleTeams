@@ -46,6 +46,14 @@ function gentle_teams_menu() {
         'weight' => 0
     );
 
+    $items['admin/gentle_teams/seasons/add'] = array(
+        'title' => 'Add season',
+        'description' => 'Page to add a season.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('gentle_teams_add_season_form'),
+        'access arguments' => array('manage gentle_teams')
+    );
+
     return $items;
 }
 
@@ -73,6 +81,9 @@ function gentle_teams_permission() {
  * Returns the HTML for the seasons overview.
  */
 function gentle_teams_season_overview() {
+    global $base_url;
+    $html = "<p><a href='" . $base_url . "/admin/gentle_teams/seasons/add'>" . t("Add season") . "</a></p>";
+
     $header = array(
         array(
             'data' => 'Begin',
@@ -93,7 +104,7 @@ function gentle_teams_season_overview() {
         $rows[] = array($row->begin, $row->end);
     }
 
-    return theme_table(array(
+    $html .= theme_table(array(
         'header' => $header,
         'rows' => $rows,
         'attributes' => array(),
@@ -102,4 +113,39 @@ function gentle_teams_season_overview() {
         'sticky' => TRUE,
         'empty' => 'There are no seasons defined yet.'
     ));
+
+    return $html;
+}
+
+/**
+ * The form for adding a season
+ */
+function gentle_teams_add_season_form() {
+    $form = array();
+
+    $years = array();
+    for ($i = 2010; $i <= 2050; $i++) {
+        $years[] = $i;
+    }
+
+    $form['gentle_teams_add_season_begin'] = array(
+        '#type' => 'select',
+        '#title' => t('Begin'),
+        '#options' => $years,
+        '#default_value' => date('Y'),
+    );
+
+    $form['gentle_teams_add_season_end'] = array(
+        '#type' => 'select',
+        '#title' => t('End'),
+        '#options' => $years,
+        '#default_value' => date('Y') + 1,
+    );
+
+    $form['submit_button'] = array(
+        '#type' => 'submit',
+        '#value' => t('Submit'),
+    );
+
+    return $form;
 }
