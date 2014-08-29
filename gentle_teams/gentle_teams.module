@@ -30,8 +30,8 @@ function gentle_teams_menu() {
     $items['admin/gentle_teams'] = array(
         'title' => 'Teams',
         'description' => 'Managing Gentle teams.',
-        'page callback' => 'gentle_teams_season_overview',
-        'page arguments' => array(1),
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('gentle_teams_season_overview_form'),
         'access arguments' => array('manage gentle_teams'),
         'type' => MENU_NORMAL_ITEM,
     );
@@ -39,8 +39,8 @@ function gentle_teams_menu() {
     $items['admin/gentle_teams/seasons'] = array(
         'title' => 'Seasons',
         'description' => 'Overview of the Gentle seasons.',
-        'page callback' => 'gentle_teams_season_overview',
-        'page arguments' => array(1),
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('gentle_teams_season_overview_form'),
         'access arguments' => array('manage gentle_teams'),
         'type' => MENU_DEFAULT_LOCAL_TASK,
         'weight' => 0
@@ -78,11 +78,13 @@ function gentle_teams_permission() {
 }
 
 /**
- * Returns the HTML for the seasons overview.
+ * Returns the form for the seasons overview.
  */
-function gentle_teams_season_overview() {
+function gentle_teams_season_overview_form() {
     global $base_url;
-    $html = "<p><a href='" . $base_url . "/admin/gentle_teams/seasons/add'>" . t("Add season") . "</a></p>";
+
+    $form = array();
+    $form['#prefix'] = "<p><a href='" . $base_url . "/admin/gentle_teams/seasons/add'>" . t("Add season") . "</a></p>";
 
     $header = array(
         array(
@@ -98,23 +100,40 @@ function gentle_teams_season_overview() {
 
     $rows = array();
 
-    $rs = db_query('SELECT begin, end FROM {gentle_teams_season}');
+    $rs = db_query('SELECT id, begin, end FROM {gentle_teams_season}');
 
     foreach($rs as $row) {
-        $rows[] = array($row->begin, $row->end);
+        $rows[$row->id] = array($row->begin, $row->end);
     }
 
-    $html .= theme_table(array(
-        'header' => $header,
-        'rows' => $rows,
-        'attributes' => array(),
-        'caption' => 'Seasons',
-        'colgroups' => array(),
-        'sticky' => TRUE,
-        'empty' => 'There are no seasons defined yet.'
-    ));
+    
+    $form['gentle_teams_season_overview'] = array(
+        '#type' => 'tableselect',
+        '#header' => $header,
+        '#options' => $rows,
+        '#empty' => t('There are no seasons defined yet.'),
+        '#multiple' => TRUE,
+    );
 
-    return $html;
+    $form['submit_button'] = array(
+        '#type' => 'submit',
+        '#value' => t('Delete selected'),
+    );
+
+    return $form;
+}
+
+/**
+ * Validates the form for the seasons overview.
+ */
+function gentle_teams_season_overview_form_validate($form, &$form_state) {
+    foreach($form_state['values']['gentle_teams_season_overview'] as $rid) {
+        db_delete('gentle_teams_season')
+            ->condition('id', $rid)
+            ->execute();
+    }
+
+    drupal_set_message(t('The selected seasons have been deleted.'));  
 }
 
 /**
