@@ -228,15 +228,30 @@ function gentle_teams_season_form_validate($form, &$form_state) {
  * Submitting the form to add a season.
  */
 function gentle_teams_season_form_submit($form, &$form_state) {
+    $id = intval($form_state['values']['gentle_teams_season_id']);
     $begin = intval($form_state['values']['gentle_teams_season_begin']);
     $end = intval($form_state['values']['gentle_teams_season_end']);
-    db_insert('gentle_teams_season')
+
+    if ($id == NULL) {
+        db_insert('gentle_teams_season')
         ->fields(array(
             'begin' => $begin,
             'end' => $end,
         ))
         ->execute();
 
-    drupal_set_message(t('The season was added.'));
+        drupal_set_message(t('The season was added.'));
+    } else {
+        db_update('gentle_teams_season')
+        ->fields(array(
+            'begin' => $begin,
+            'end' => $end,
+        ))
+        ->condition('id', $id, '=')
+        ->execute();
+
+        drupal_set_message(t('The season was updated.'));
+    }
+    
     $form_state['redirect'] = 'admin/gentle_teams/seasons';
 }
