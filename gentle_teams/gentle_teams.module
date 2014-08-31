@@ -49,16 +49,16 @@ function gentle_teams_menu() {
     $items['admin/gentle_teams/seasons/add'] = array(
         'title' => 'Add season',
         'description' => 'Page to add a season.',
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('gentle_teams_season_form', 'add'),
+        'page callback' => 'gentle_teams_season_get_form',
+        'page arguments' => array(3),
         'access arguments' => array('manage gentle_teams')
     );
 
-    $items['admin/gentle_teams/seasons/edit'] = array(
+    $items['admin/gentle_teams/seasons/edit/%'] = array(
         'title' => 'Edit season',
         'description' => 'Page to edit a season.',
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('gentle_teams_season_form', 'edit'),
+        'page callback' => 'gentle_teams_season_get_form',
+        'page arguments' => array(3, 4),
         'access arguments' => array('manage gentle_teams')
     );
 
@@ -111,7 +111,11 @@ function gentle_teams_season_overview_form() {
     $rs = db_query('SELECT id, begin, end FROM {gentle_teams_season}');
 
     foreach($rs as $row) {
-        $rows[$row->id] = array($row->begin, $row->end);
+        $season_link = '<a href="' . $base_url . '/admin/gentle_teams/seasons/edit/' . $row->id . '">' . $row->begin . "</a>";
+        $rows[$row->id] = array(
+            $season_link, 
+            $row->end
+        );
     }
 
     
@@ -145,18 +149,44 @@ function gentle_teams_season_overview_form_validate($form, &$form_state) {
 }
 
 /**
- * The form for adding a season
+ * Returns the form for adding/editing a season
  */
-function gentle_teams_season_form($mode) {
+function gentle_teams_season_get_form($mode, $sid = NULL) {
+    return drupal_get_form('gentle_teams_season_form', $mode, $sid);
+}
+
+/**
+ * The form for adding/editing a season
+ */
+function gentle_teams_season_form($form, $form_state, $mode, $sid = NULL) {
     $form = array();
 
     $default_begin = intval(date('Y'));
     $default_end = intval(date('Y')) + 1;
+    $season_id = NULL;
 
     $years = array();
     for ($i = 2010; $i <= 2050; $i++) {
         $years[$i] = $i;
     }
+
+    if ($sid != NULL) {
+        $rs = db_query('SELECT id, begin, end FROM {gentle_teams_season} WHERE id = :sid', array(':sid' => $sid));
+        foreach($rs as $season) {
+            $default_begin = $season->begin;
+            $default_end = $season->end;
+            $season_id = $season->id;            
+        }
+
+        if ($season_id == NULL) {
+            drupal_set_message(t('The season with id ' . $sid . 'could not be found.'), 'error');
+        }
+    }
+
+    $form['gentle_teams_season_id'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $season_id,
+    );
 
     $form['gentle_teams_season_begin'] = array(
         '#type' => 'select',
