@@ -62,6 +62,16 @@ function gentle_teams_menu() {
         'access arguments' => array('manage gentle_teams')
     );
 
+    $items['admin/gentle_teams/players'] = array(
+        'title' => 'Players',
+        'description' => 'Manage Gentle players',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('gentle_teams_players_overview_form'),
+        'access arguments' => array('manage gentle_teams'),
+        'type' => MENU_LOCAL_TASK,
+        'weight' => 1
+    );
+
     return $items;
 }
 
@@ -254,4 +264,15 @@ function gentle_teams_season_form_submit($form, &$form_state) {
     }
     
     $form_state['redirect'] = 'admin/gentle_teams/seasons';
+}
+
+/**
+ * Form with overview of all players
+ */
+function gentle_teams_players_overview_form() {
+    $form = array();
+
+    $form['#prefix'] = t('Players here');
+
+    return $form;
 }
