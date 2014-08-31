@@ -272,7 +272,35 @@ function gentle_teams_season_form_submit($form, &$form_state) {
 function gentle_teams_players_overview_form() {
     $form = array();
 
-    $form['#prefix'] = t('Players here');
+    $header = array(
+        array(
+            'data' => 'User',
+            'field' => 'name',
+            'sort' => 'asc'
+        )
+    );
 
+    $rs = db_query('select uid, name 
+                    from {users}  
+                    where status = 1');
+
+    $rows = array();
+
+    foreach ($rs as $rs_item) {
+	    $row = $rs_item;
+        
+        $rows[$row->uid] = array(
+            $row->name
+        );
+    }
+
+    $form['gentle_teams_players_overview'] = array(
+        '#type' => 'tableselect',
+        '#header' => $header,
+        '#options' => $rows,
+        '#empty' => t('Couldn\'t find any users.'),
+        '#multiple' => TRUE,
+    );
+                        
     return $form;
 }
