@@ -31,5 +31,31 @@ function gentle_teams_schema() {
     'primary key' => array('id'),
   );
 
+  $schema['gentle_teams_season_users'] = array(
+    'description' => 'Links users to a season',
+    'fields' => array(
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'User id',
+      ),
+      'sid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Season id',
+      ),
+    ),
+    'foreign keys' => array(
+      'gentle_teams_season_season' => array(
+        'table' => 'gentle_teams_season',
+        'columns' => array('gentle_teams_season' => 'id'),
+      ),
+      'gentle_teams_season_users' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+  );
+
   return $schema;
 }
