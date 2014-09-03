@@ -61,6 +61,22 @@ function gentle_teams_menu() {
         'page arguments' => array(3, 4),
         'access arguments' => array('manage gentle_teams')
     );
+    
+    $items['admin/gentle_teams/seasons/edit/%/teams'] = array(
+        'title' => 'Edit season\'s teams',
+        'description' => 'Page to edit a season\'s teams.',
+        'page callback' => 'gentle_teams_season_teams_get_form',
+        'page arguments' => array(4),
+        'access arguments' => array('manage gentle_teams')
+    );
+
+    $items['admin/gentle_teams/seasons/edit/%/teams/add'] = array(
+        'title' => 'Add a team to a season',
+        'description' => 'Page to add a team to a season.',
+        'page callback' => 'gentle_teams_season_teams_edit_get_form',
+        'page arguments' => array(4, 6),
+        'access arguments' => array('manage gentle_teams'),
+    );
 
     return $items;
 }
@@ -171,6 +187,8 @@ function gentle_teams_season_get_form($mode, $sid = NULL) {
  * The form for adding/editing a season
  */
 function gentle_teams_season_form($form, $form_state, $mode, $sid = NULL) {
+    global $base_url;
+
     $form = array();
 
     $default_begin = intval(date('Y'));
@@ -210,6 +228,11 @@ function gentle_teams_season_form($form, $form_state, $mode, $sid = NULL) {
             }
         </script>
         ';
+
+    if ($sid != NULL) {
+        // TODO: better in hook_menu system?
+        $form['#prefix'] .= '<a href ="' . $base_url . '/admin/gentle_teams/seasons/edit/' . $sid . '/teams/add">' . t('Teams') . '</a>';
+    }
 
     $form['gentle_teams_season_id'] = array(
         '#type' => 'hidden',
@@ -347,4 +370,135 @@ function gentle_teams_season_form_submit($form, &$form_state) {
     }
 
     $form_state['redirect'] = 'admin/gentle_teams/seasons/edit/' . $sid;
+}
+
+/**
+ * Returns the form for editing a season's teams
+ */
+function gentle_teams_season_teams_get_form($sid) {
+    return drupal_get_form('gentle_teams_season_teams_form', $sid);
+}
+
+/**
+ * The form for editing a season's teams
+ */
+function gentle_teams_season_teams_form($form, $form_state, $sid) {
+    global $base_url;
+
+    $form = array();
+    $form['#prefix'] = '<a href="' . $base_url . 'admin/gentle_teams/seasons/edit/' . $sid . '/teams/add>' . t('Add a team') .'</a>';
+
+    $header = array(
+        array(
+            'data' => 'Name',
+            'field' => 'name',
+            'sort' => 'asc'
+        ),
+        array(
+            'data' => 'Players',
+            'field' => 'count'
+        )
+    );
+
+    $rows = array();
+
+    $rs = db_query('SELECT t.id, t.name, count(t.id) as count
+                    FROM {gentle_teams_team} t
+                    GROUP BY t.id, t.name');
+
+    foreach($rs as $row) {
+        //$season_link = '<a href="' . $base_url . '/admin/gentle_teams/seasons/edit/' . $row->id . '">' . $row->begin . "</a>";
+        $season_link = $row->name;
+        $rows[$row->id] = array(
+            $season_link, 
+            $row->count
+        );
+    }
+        
+    $form['gentle_teams_team_overview'] = array(
+        '#type' => 'tableselect',
+        '#header' => $header,
+        '#options' => $rows,
+        '#empty' => t('There are no teams defined for this season yet.'),
+        '#multiple' => TRUE,
+    );
+
+    $form['submit_button'] = array(
+        '#type' => 'submit',
+        '#value' => t('Delete selected'),
+    );
+
+    return $form;
+}
+
+/**
+ * Returns the form for adding/editing a team in a season
+ */
+function gentle_teams_season_teams_edit_get_form($sid, $mode) {
+    return drupal_get_form('gentle_teams_season_teams_edit_form', $sid, $mode);
+}
+
+/**
+ * The form for adding/editing a team in a season
+ */
+function gentle_teams_season_teams_edit_form($form, $form_state, $sid, $mode) {
+    $form = array();
+
+    $form['gentle_teams_season_id'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $sid,
+    );
+
+    $form['gentle_teams_team_name'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Name'),
+        '#description' => t('The name of the team.'),
+    );
+
+    $header = array(
+        'name' => array(
+            'data' => 'User',
+            'field' => 'name',
+            'sort' => 'asc'
+        )
+    );
+
+    $rs = db_query('select u.uid, u.name, su.sid
+                    from {users} u
+                        inner join {gentle_teams_season_users} su on su.uid = u.uid
+                    where u.status = 1 and su.sid = :sid', array('sid' => $sid));
+
+    $rows = array();
+    $default_values = array();
+
+    foreach ($rs as $rs_item) {
+	    $row = $rs_item;
+        
+        $rows[$row->uid] = array(
+            'name' => $row->name,
+        );
+    }
+
+    $form['gentle_teams_team_users'] = array(
+        '#type' => 'tableselect',
+        '#header' => $header,
+        '#options' => $rows,
+        '#empty' => t('Couldn\'t find any users for this season.'),
+        '#multiple' => TRUE,
+        '#js_select' => FALSE,
+    );
+
+    $form['submit_button'] = array(
+        '#type' => 'submit',
+        '#value' => t('Submit'),
+    );
+
+    return $form;
+}
+
+/** 
+ * Submitting the teams form
+ */
+function gentle_teams_season_teams_edit_form_submit($form, &$form_state) {
+    // TODO
 }
