@@ -278,7 +278,7 @@ function gentle_teams_season_form($form, $form_state, $mode, $sid = NULL) {
         '#options' => $rows,
         '#empty' => t('Couldn\'t find any users.'),
         '#multiple' => TRUE,
-        '#js_select property' => FALSE,
+        '#js_select' => FALSE,
         '#default_value' => $default_values,
     );
 
