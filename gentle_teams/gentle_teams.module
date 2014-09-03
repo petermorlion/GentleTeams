@@ -197,6 +197,20 @@ function gentle_teams_season_form($form, $form_state, $mode, $sid = NULL) {
         }
     }
 
+    $form['#prefix'] = '
+        <script type="text/javascript">
+            function ToggleAllUsers(checkbox) {
+                var rowsToHide = document.getElementsByClassName("not-in-season");
+
+                var display = checkbox.checked ? "none" : "";
+
+                for(var i = 0; i < rowsToHide.length; i++) {
+                    rowsToHide[i].style.display = display;
+                }
+            }
+        </script>
+        ';
+
     $form['gentle_teams_season_id'] = array(
         '#type' => 'hidden',
         '#default_value' => $season_id,
@@ -218,8 +232,17 @@ function gentle_teams_season_form($form, $form_state, $mode, $sid = NULL) {
         '#options' => $years,
     );
 
+    $form['gentle_teams_season_toggle'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Only show users active in this season'),
+        '#default_value' => 0,
+        '#attributes' => array(
+            'onclick' => 'ToggleAllUsers(this);'
+        )
+    );
+
     $header = array(
-        array(
+        'name' => array(
             'data' => 'User',
             'field' => 'name',
             'sort' => 'asc'
@@ -238,7 +261,10 @@ function gentle_teams_season_form($form, $form_state, $mode, $sid = NULL) {
 	    $row = $rs_item;
         
         $rows[$row->uid] = array(
-            $row->name
+            'name' => $row->name,
+            '#attributes' => array(
+                'class' => array($row->sid == NULL ? 'not-in-season' : '')
+            )
         );
         
         if ($row->sid != NULL) {
@@ -252,6 +278,7 @@ function gentle_teams_season_form($form, $form_state, $mode, $sid = NULL) {
         '#options' => $rows,
         '#empty' => t('Couldn\'t find any users.'),
         '#multiple' => TRUE,
+        '#js_select property' => FALSE,
         '#default_value' => $default_values,
     );
 
