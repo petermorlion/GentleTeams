@@ -439,6 +439,22 @@ function gentle_teams_season_teams_form($form, $form_state, $sid) {
 }
 
 /**
+ * Submitting the form to delete a season's teams
+ */
+function gentle_teams_season_teams_form_submit($form, $form_state) {
+    foreach($form_state['values']['gentle_teams_team_overview'] as $tid) {
+        db_delete('gentle_teams_team_users')
+            ->condition('tid', $tid)
+            ->execute();
+        db_delete('gentle_teams_team')
+            ->condition('id', $tid)
+            ->execute();
+    }
+
+    drupal_set_message(t('The selected teams have been deleted.'));  
+}
+
+/**
  * Returns the form for adding/editing a team in a season
  */
 function gentle_teams_season_teams_edit_get_form($sid, $mode, $tid = NULL) {
