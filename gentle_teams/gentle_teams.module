@@ -410,9 +410,10 @@ function gentle_teams_season_teams_form($form, $form_state, $sid) {
 
     $rows = array();
 
-    $rs = db_query('SELECT t.id, t.sid, t.name, count(t.id) as count
+    $rs = db_query('SELECT t.id, t.sid, t.name, count(tu.uid) as count
                     FROM {gentle_teams_team} t
-                    GROUP BY t.id, t.name');
+                        LEFT OUTER JOIN {gentle_teams_team_users tu on tu.tid = t.id
+                    GROUP BY t.id, t.sid, t.name');
 
     foreach($rs as $row) {
         $team_link = '<a href="' . $base_url . '/admin/gentle_teams/seasons/edit/' . $row->sid . '/teams/edit/' . $row->id . '">' . $row->name . "</a>";
@@ -582,6 +583,8 @@ function gentle_teams_season_teams_edit_form_validate($form, &$form_state) {
     if ($team_name == '') {
         form_set_error('gentle_teams_team_name', t('Please specify a name for this team.'));
     }
+
+    // TODO: check if team name in season already exists
 }
 
 /** 
