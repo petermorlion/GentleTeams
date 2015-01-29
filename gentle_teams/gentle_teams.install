@@ -57,5 +57,60 @@ function gentle_teams_schema() {
     ),
   );
 
+  $schema['gentle_teams_team'] = array(
+    'description' => 'Defines teams within Gentle',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Team id',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'not null' => TRUE,
+        'description' => 'Team name',
+        'length' => 32,
+      ),
+      'sid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Season id',
+      ),
+    ),
+    'foreign keys' => array(
+      'gentle_teams_team_season' => array(
+        'table' => 'gentle_teams_season',
+        'columns' => array('gentle_teams_season_id' => 'id'),
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  $schema['gentle_teams_team_users'] = array(
+    'description' => 'Links users to a team',
+    'fields' => array(
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'User id',
+      ),
+      'tid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Team id',
+      ),
+    ),
+    'foreign keys' => array(
+      'gentle_teams_team_team' => array(
+        'table' => 'gentle_teams_team',
+        'columns' => array('gentle_teams_team' => 'id'),
+      ),
+      'gentle_teams_team_users' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+  );
+
   return $schema;
 }
