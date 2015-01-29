@@ -120,16 +120,12 @@ function gentle_teams_season_overview_form() {
 
     $header = array(
         array(
-            'data' => 'Begin',
+            'data' => t('Season'),
             'field' => 'begin',
             'sort' => 'asc'
         ),
         array(
-            'data' => 'End',
-            'field' => 'end'
-        ),
-        array(
-            'data' => 'Players',
+            'data' => t('Players'),
             'field' => 'count'
         )
     );
@@ -143,10 +139,10 @@ function gentle_teams_season_overview_form() {
                     GROUP BY s.id, s.begin, s.end');
 
     foreach($rs as $row) {
-        $season_link = '<a href="' . $base_url . '/admin/gentle_teams/seasons/edit/' . $row->id . '">' . $row->begin . "</a>";
+        $season_link_text = $row->begin . '-' .$row->end;
+        $season_link = '<a href="' . $base_url . '/admin/gentle_teams/seasons/edit/' . $row->id . '">' . $season_link_text . "</a>";
         $rows[$row->id] = array(
             $season_link, 
-            $row->end,
             $row->count
         );
     }
