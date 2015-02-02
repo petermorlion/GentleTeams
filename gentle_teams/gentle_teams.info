@@ -3,3 +3,4 @@ description = A custom module for Gentle Ultimate Frisbee and organizing users i
 package = Gentle Ultimate
 core = 7.x
 version = 7.x-0.1
+dependencies[] = views
