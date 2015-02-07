@@ -35,7 +35,7 @@ function gentle_teams_menu() {
         'access arguments' => array('manage gentle_teams'),
         'type' => MENU_NORMAL_ITEM,
     );
-    
+
     $items['admin/gentle_teams/seasons'] = array(
         'title' => 'Seasons',
         'description' => 'Overview of the Gentle seasons.',
@@ -61,7 +61,7 @@ function gentle_teams_menu() {
         'page arguments' => array(3, 4),
         'access arguments' => array('manage gentle_teams')
     );
-    
+
     $items['admin/gentle_teams/seasons/edit/%/teams'] = array(
         'title' => 'Edit season\'s teams',
         'description' => 'Page to edit a season\'s teams.',
@@ -142,12 +142,12 @@ function gentle_teams_season_overview_form() {
         $season_link_text = $row->begin . '-' .$row->end;
         $season_link = '<a href="' . $base_url . '/admin/gentle_teams/seasons/edit/' . $row->id . '">' . $season_link_text . "</a>";
         $rows[$row->id] = array(
-            $season_link, 
+            $season_link,
             $row->count
         );
     }
 
-    
+
     $form['gentle_teams_season_overview'] = array(
         '#type' => 'tableselect',
         '#header' => $header,
@@ -177,7 +177,7 @@ function gentle_teams_season_overview_form_submit($form, &$form_state) {
             ->execute();
     }
 
-    drupal_set_message(t('The selected seasons have been deleted.'));  
+    drupal_set_message(t('The selected seasons have been deleted.'));
 }
 
 /**
@@ -205,13 +205,13 @@ function gentle_teams_season_form($form, $form_state, $mode, $sid = NULL) {
     }
 
     if ($sid != NULL) {
-        $rs = db_query('SELECT id, begin, end 
-                        FROM {gentle_teams_season} 
+        $rs = db_query('SELECT id, begin, end
+                        FROM {gentle_teams_season}
                         WHERE id = :sid', array(':sid' => $sid));
         foreach($rs as $season) {
             $default_begin = $season->begin;
             $default_end = $season->end;
-            $season_id = $season->id;            
+            $season_id = $season->id;
         }
 
         if ($season_id == NULL) {
@@ -286,14 +286,14 @@ function gentle_teams_season_form($form, $form_state, $mode, $sid = NULL) {
 
     foreach ($rs as $rs_item) {
 	    $row = $rs_item;
-        
+
         $rows[$row->uid] = array(
             'name' => $row->name,
             '#attributes' => array(
                 'class' => array($row->sid == NULL ? 'not-in-season' : '')
             )
         );
-        
+
         if ($row->sid != NULL) {
             $default_values[$row->uid] = TRUE;
         }
@@ -414,11 +414,11 @@ function gentle_teams_season_teams_form($form, $form_state, $sid) {
     foreach($rs as $row) {
         $team_link = '<a href="' . $base_url . '/admin/gentle_teams/seasons/edit/' . $row->sid . '/teams/edit/' . $row->id . '">' . $row->name . "</a>";
         $rows[$row->id] = array(
-            $team_link, 
+            $team_link,
             $row->count
         );
     }
-        
+
     $form['gentle_teams_team_overview'] = array(
         '#type' => 'tableselect',
         '#header' => $header,
@@ -448,7 +448,7 @@ function gentle_teams_season_teams_form_submit($form, $form_state) {
             ->execute();
     }
 
-    drupal_set_message(t('The selected teams have been deleted.'));  
+    drupal_set_message(t('The selected teams have been deleted.'));
 }
 
 /**
@@ -468,11 +468,11 @@ function gentle_teams_season_teams_edit_form($form, $form_state, $sid, $mode, $t
 
     if ($tid != NULL) {
         $rs = db_query('SELECT id, name
-                        FROM {gentle_teams_team} 
+                        FROM {gentle_teams_team}
                         WHERE id = :tid', array(':tid' => $tid));
         foreach($rs as $team) {
             $team_name = $team->name;
-            $team_id = $team->id;            
+            $team_id = $team->id;
         }
 
         if ($team_id == NULL) {
@@ -532,7 +532,7 @@ function gentle_teams_season_teams_edit_form($form, $form_state, $sid, $mode, $t
     $rs = db_query('select u.uid, u.name, su.sid, tu.tid
                     from {users} u
                         inner join {gentle_teams_season_users} su on su.uid = u.uid
-                        left outer join {gentle_teams_team_users} tu on tu.uid = u.uid and tu.tid = :tid 
+                        left outer join {gentle_teams_team_users} tu on tu.uid = u.uid and tu.tid = :tid
                     where u.status = 1 and su.sid = :sid', array('sid' => $sid, 'tid' => $tid));
 
     $rows = array();
@@ -540,7 +540,7 @@ function gentle_teams_season_teams_edit_form($form, $form_state, $sid, $mode, $t
 
     foreach ($rs as $rs_item) {
 	    $row = $rs_item;
-        
+
         $rows[$row->uid] = array(
             'name' => $row->name,
             '#attributes' => array(
@@ -583,7 +583,7 @@ function gentle_teams_season_teams_edit_form_validate($form, &$form_state) {
     // TODO: check if team name in season already exists
 }
 
-/** 
+/**
  * Submitting the teams form
  */
 function gentle_teams_season_teams_edit_form_submit($form, &$form_state) {
@@ -627,4 +627,65 @@ function gentle_teams_season_teams_edit_form_submit($form, &$form_state) {
     }
 
     $form_state['redirect'] = 'admin/gentle_teams/seasons/edit/' . $sid . '/teams/edit/' . $tid;
+}
+
+/**
+ * Implements hook_views_api
+ */
+function gentle_teams_views_api() {
+  //watchdog('gentle_teams', 'views api called');
+
+    return array(
+        'api' => 3
+    );
+}
+
+/**
+* Implementation of hook_views_data()
+*/
+function gentle_teams_views_data() {
+  //watchdog('gentle_teams', 'views data requested');
+
+  $data['gentle_teams_season']['table']['teams'] = t('Gentle seasons');
+
+  $data['gentle_teams_season']['table']['group'] = t('Gentle seasons');
+
+  $data['gentle_teams_season']['table']['base'] = array(
+    'field' => 'id',
+    'title' => t('Gentle seasons'),
+    'help' => t('Seasons as defined for Gentle Ultimate.'),
+    'weight' => -10,
+  );
+
+  $data['gentle_teams_season']['id'] = array(
+    'title' => t('Season id'),
+    'help' => t('The season id'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click_sortable' => TRUE
+    ),
+    'sort' => array('handler' => 'views_handler_sort'),
+  );
+
+  $data['gentle_teams_season']['begin'] = array(
+    'title' => t('Begin'),
+    'help' => t('The start year of the season'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click_sortable' => TRUE
+    ),
+    'sort' => array('handler' => 'views_handler_sort'),
+  );
+
+  $data['gentle_teams_season']['end'] = array(
+    'title' => t('End'),
+    'help' => t('The end year of the season'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click_sortable' => TRUE
+    ),
+    'sort' => array('handler' => 'views_handler_sort'),
+  );
+
+  return $data;
 }
