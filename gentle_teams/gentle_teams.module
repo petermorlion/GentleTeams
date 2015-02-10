@@ -649,7 +649,7 @@ function gentle_teams_views_data() {
   /*
    * The seasons
    */
-  $data['gentle_teams_season']['table']['group'] = t('Gentle seasons');
+  $data['gentle_teams_season']['table']['group'] = t('Gentle teams');
 
   $data['gentle_teams_season']['table']['base'] = array(
     'field' => 'id',
@@ -691,7 +691,7 @@ function gentle_teams_views_data() {
   /*
    * The teams
    */
-  $data['gentle_teams_team']['table']['group'] = t('Gentle seasons');
+  $data['gentle_teams_team']['table']['group'] = t('Gentle teams');
 
   $data['gentle_teams_team']['table']['base'] = array(
     'field' => 'id',
@@ -726,6 +726,8 @@ function gentle_teams_views_data() {
     ),
     'sort' => array('handler' => 'views_handler_sort'),
   );
+
+  
 
   return $data;
 }
