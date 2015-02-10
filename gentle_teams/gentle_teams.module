@@ -646,8 +646,9 @@ function gentle_teams_views_api() {
 function gentle_teams_views_data() {
   //watchdog('gentle_teams', 'views data requested');
 
-  $data['gentle_teams_season']['table']['teams'] = t('Gentle seasons');
-
+  /*
+   * The seasons
+   */
   $data['gentle_teams_season']['table']['group'] = t('Gentle seasons');
 
   $data['gentle_teams_season']['table']['base'] = array(
@@ -680,6 +681,45 @@ function gentle_teams_views_data() {
   $data['gentle_teams_season']['end'] = array(
     'title' => t('End'),
     'help' => t('The end year of the season'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click_sortable' => TRUE
+    ),
+    'sort' => array('handler' => 'views_handler_sort'),
+  );
+
+  /*
+   * The teams
+   */
+  $data['gentle_teams_team']['table']['group'] = t('Gentle seasons');
+
+  $data['gentle_teams_team']['table']['base'] = array(
+    'field' => 'id',
+    'title' => t('Gentle teams'),
+    'help' => t('Teams as defined for Gentle Ultimate.'),
+    'weight' => -10,
+  );
+
+  $data['gentle_teams_team']['table']['join'] = array(
+    'gentle_teams_season' => array(
+      'left_field' => 'id',
+      'field' => 'sid'
+    )
+  );
+
+  $data['gentle_teams_team']['id'] = array(
+    'title' => t('Team id'),
+    'help' => t('The team id'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click_sortable' => TRUE
+    ),
+    'sort' => array('handler' => 'views_handler_sort'),
+  );
+
+  $data['gentle_teams_team']['name'] = array(
+    'title' => t('Name'),
+    'help' => t('The name of the team'),
     'field' => array(
       'handler' => 'views_handler_field',
       'click_sortable' => TRUE
