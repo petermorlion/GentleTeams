@@ -669,7 +669,7 @@ function gentle_teams_views_data() {
   );
 
   $data['gentle_teams_season']['begin'] = array(
-    'title' => t('Begin'),
+    'title' => t('Season begin'),
     'help' => t('The start year of the season'),
     'field' => array(
       'handler' => 'views_handler_field',
@@ -679,7 +679,7 @@ function gentle_teams_views_data() {
   );
 
   $data['gentle_teams_season']['end'] = array(
-    'title' => t('End'),
+    'title' => t('Season end'),
     'help' => t('The end year of the season'),
     'field' => array(
       'handler' => 'views_handler_field',
@@ -727,7 +727,7 @@ function gentle_teams_views_data() {
     'sort' => array('handler' => 'views_handler_sort'),
   );
 
-  
+
 
   return $data;
 }
