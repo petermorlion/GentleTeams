@@ -408,8 +408,10 @@ function gentle_teams_season_teams_form($form, $form_state, $sid) {
 
     $rs = db_query('SELECT t.id, t.sid, t.name, count(tu.uid) as count
                     FROM {gentle_teams_team} t
+                        INNER JOIN {gentle_teams_season} s on s.id = t.sid
                         LEFT OUTER JOIN {gentle_teams_team_users tu on tu.tid = t.id
-                    GROUP BY t.id, t.sid, t.name');
+                    WHERE s.id = :sid
+                    GROUP BY t.id, t.sid, t.name', array('sid' => $sid));
 
     foreach($rs as $row) {
         $team_link = '<a href="' . $base_url . '/admin/gentle_teams/seasons/edit/' . $row->sid . '/teams/edit/' . $row->id . '">' . $row->name . "</a>";
