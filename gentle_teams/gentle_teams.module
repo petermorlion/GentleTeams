@@ -125,25 +125,40 @@ function gentle_teams_season_overview_form() {
             'sort' => 'asc'
         ),
         array(
+            'field' => 'teamCount',
+            'data' => t('Teams'),
+        ),
+        array(
+            'field' => 'playerCount',
             'data' => t('Players'),
-            'field' => 'count'
         )
     );
 
     $rows = array();
 
-    $rs = db_query('SELECT s.id, s.begin, s.end, count(s.id) as count
-                    FROM {gentle_teams_season} s
-                        LEFT OUTER JOIN {gentle_teams_season_users} su ON su.sid = s.id
-                        LEFT OUTER JOIN {users} u ON u.uid = su.uid
-                    GROUP BY s.id, s.begin, s.end');
+    $rs = db_query('SELECT innerQuery.id,
+                           innerQuery.begin,
+                           innerQuery.end,
+                           innerQuery.playerCount,
+                           count(t.id) as teamCount
+                    FROM (
+			                   SELECT s.id, s.begin, s.end, count(u.uid) as playerCount
+                         FROM gentle_teams_season s
+                            LEFT OUTER JOIN gentle_teams_season_users su ON su.sid = s.id
+                            LEFT OUTER JOIN users u ON u.uid = su.uid
+			                   GROUP BY s.id, s.begin, s.end) innerQuery
+                    LEFT OUTER JOIN gentle_teams_team t ON t.sid = innerQuery.id
+                    GROUP BY innerQuery.id, innerQuery.begin, innerQuery.end');
+
+
 
     foreach($rs as $row) {
         $season_link_text = $row->begin . '-' .$row->end;
         $season_link = '<a href="' . $base_url . '/admin/gentle_teams/seasons/edit/' . $row->id . '">' . $season_link_text . "</a>";
         $rows[$row->id] = array(
             $season_link,
-            $row->count
+            $row->teamCount,
+            $row->playerCount
         );
     }
 
