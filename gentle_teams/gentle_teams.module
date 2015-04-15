@@ -679,10 +679,12 @@ function gentle_teams_views_data() {
     'title' => t('Season id'),
     'help' => t('The season id'),
     'field' => array(
-      'handler' => 'views_handler_field',
+      'handler' => 'views_handler_field_numeric',
       'click_sortable' => TRUE
     ),
     'sort' => array('handler' => 'views_handler_sort'),
+    'filter' => array('handler' => 'views_handler_filter_numeric'),
+    'argument' => array('handler' => 'views_handler_argument_numeric')
   );
 
   $data['gentle_teams_season']['begin'] = array(
