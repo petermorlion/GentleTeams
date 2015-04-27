@@ -734,6 +734,7 @@ function gentle_teams_views_data() {
       'click_sortable' => TRUE
     ),
     'sort' => array('handler' => 'views_handler_sort'),
+    'argument' => array('handler' => 'views_handler_argument_numeric'),
   );
 
   $data['gentle_teams_team']['name'] = array(
@@ -745,8 +746,6 @@ function gentle_teams_views_data() {
     ),
     'sort' => array('handler' => 'views_handler_sort'),
   );
-
-
 
   return $data;
 }
