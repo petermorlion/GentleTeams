@@ -51,7 +51,8 @@ function gentle_teams_menu() {
         'description' => 'Page to add a season.',
         'page callback' => 'gentle_teams_season_get_form',
         'page arguments' => array(3),
-        'access arguments' => array('manage gentle_teams')
+        'access arguments' => array('manage gentle_teams'),
+        'type' => MENU_LOCAL_ACTION
     );
 
     $items['admin/gentle_teams/seasons/edit/%'] = array(
@@ -67,19 +68,21 @@ function gentle_teams_menu() {
         'description' => 'Page to edit a season\'s teams.',
         'page callback' => 'gentle_teams_season_teams_get_form',
         'page arguments' => array(4),
-        'access arguments' => array('manage gentle_teams')
+        'access arguments' => array(4),
+        'type' => MENU_LOCAL_ACTION
     );
 
     $items['admin/gentle_teams/seasons/edit/%/teams/add'] = array(
-        'title' => 'Add a team to a season',
+        'title' => 'Add a team',
         'description' => 'Page to add a team to a season.',
         'page callback' => 'gentle_teams_season_teams_edit_get_form',
         'page arguments' => array(4, 6),
         'access arguments' => array('manage gentle_teams'),
+        'type' => MENU_LOCAL_ACTION
     );
 
     $items['admin/gentle_teams/seasons/edit/%/teams/edit/%'] = array(
-        'title' => 'Add a team to a season',
+        'title' => 'Edit a team in a season',
         'description' => 'Page to edit a team in a season.',
         'page callback' => 'gentle_teams_season_teams_edit_get_form',
         'page arguments' => array(4, 6, 7),
@@ -110,13 +113,19 @@ function gentle_teams_permission() {
 }
 
 /**
+ * Determines whether or not the link to edit a season's teams should be visible.
+ */
+function gentle_teams_season_teams_access($sid, $permission) {
+  return $sid != NULL;
+}
+
+/**
  * Returns the form for the seasons overview.
  */
 function gentle_teams_season_overview_form() {
     global $base_url;
 
     $form = array();
-    $form['#prefix'] = "<p><a href='" . $base_url . "/admin/gentle_teams/seasons/add'>" . t("Add season") . "</a></p>";
 
     $header = array(
         array(
@@ -247,11 +256,6 @@ function gentle_teams_season_form($form, $form_state, $mode, $sid = NULL) {
             }
         </script>
         ';
-
-    if ($sid != NULL) {
-        // TODO: better in hook_menu system?
-        $form['#prefix'] .= '<a href ="' . $base_url . '/admin/gentle_teams/seasons/edit/' . $sid . '/teams">' . t('Teams') . '</a>';
-    }
 
     $form['gentle_teams_season_id'] = array(
         '#type' => 'hidden',
@@ -388,7 +392,7 @@ function gentle_teams_season_form_submit($form, &$form_state) {
         }
     }
 
-    $form_state['redirect'] = 'admin/gentle_teams/seasons/edit/' . $sid;
+    $form_state['redirect'] = 'admin/gentle_teams/seasons';
 }
 
 /**
@@ -405,7 +409,6 @@ function gentle_teams_season_teams_form($form, $form_state, $sid) {
     global $base_url;
 
     $form = array();
-    $form['#prefix'] = '<a href="' . $base_url . '/admin/gentle_teams/seasons/edit/' . $sid . '/teams/add">' . t('Add a team') .'</a>';
 
     $header = array(
         array(
@@ -747,5 +750,5 @@ function gentle_teams_views_data() {
     'sort' => array('handler' => 'views_handler_sort'),
   );
 
-  return $data;
+   return $data;
 }
