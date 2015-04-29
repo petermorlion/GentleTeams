@@ -140,7 +140,8 @@ function gentle_teams_settings_form() {
   );
 
   $form['submit_button'] = array(
-      '#type' => 'submit'
+      '#type' => 'submit',
+      '#value' => t('Submit'),
   );
 
   return $form;
