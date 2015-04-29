@@ -36,6 +36,16 @@ function gentle_teams_menu() {
         'type' => MENU_NORMAL_ITEM,
     );
 
+    $items['admin/gentle_teams/settings'] = array(
+        'title' => 'Settings',
+        'description' => 'Settings for the Gentle Teams module.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('gentle_teams_settings_form'),
+        'access arguments' => array('manage gentle_teams'),
+        'type' => MENU_LOCAL_TASK,
+        'weight' => 0
+    );
+
     $items['admin/gentle_teams/seasons'] = array(
         'title' => 'Seasons',
         'description' => 'Overview of the Gentle seasons.',
@@ -117,6 +127,23 @@ function gentle_teams_permission() {
  */
 function gentle_teams_season_teams_access($sid, $permission) {
   return $sid != NULL;
+}
+
+function gentle_teams_settings_form() {
+  $form = array();
+
+  $form['gentle_teams_settings_additional_user_fields'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Additional user fields'),
+    '#required' => FALSE,
+    '#description' => t('Defines additional fields to display in the overview of users.'),
+  );
+
+  $form['submit_button'] = array(
+      '#type' => 'submit'
+  );
+
+  return $form;
 }
 
 /**
