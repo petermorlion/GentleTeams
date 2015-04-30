@@ -612,11 +612,36 @@ function gentle_teams_season_teams_edit_form($form, $form_state, $sid, $mode, $t
         )
     );
 
-    $rs = db_query('select u.uid, u.name, su.sid, tu.tid
-                    from {users} u
-                        inner join {gentle_teams_season_users} su on su.uid = u.uid
-                        left outer join {gentle_teams_team_users} tu on tu.uid = u.uid and tu.tid = :tid
-                    where u.status = 1 and su.sid = :sid', array('sid' => $sid, 'tid' => $tid));
+    $query = db_select('users', 'u')
+        ->fields('u', array('uid', 'name'))
+        ->fields('su', array('sid'))
+        ->fields('tu', array('tid'))
+        ->condition('u.status', 1, '=')
+        ->condition('su.sid', $sid, '=')
+        ->condition('tu.tid', $tid, '=');
+        
+    $query->join('gentle_teams_season_users', 'su', 'su.uid = u.uid');
+    $query->leftJoin('gentle_teams_team_users', 'tu', 'tu.uid = u.uid');
+    
+    // TODO: this is duplication!
+    $additional_user_fields = array_map('trim', explode(',', variable_get('gentle_teams_additional_user_fields')));
+    
+    $user_fields = field_info_instances('user')['user'];
+    
+    for ($i = 0; $i < count($additional_user_fields); $i++) {
+        $table_name = 'field_data_' . $additional_user_fields[$i];
+        $table_alias = 'auf_' . $i;
+        
+        $query->leftJoin($table_name, $table_alias, $table_alias . '.entity_id = u.uid');
+        $query->fields($table_alias, array($additional_user_fields[$i] . '_value'));
+
+        $header[$additional_user_fields[$i] . '_value'] = array(
+            'data' => $user_fields[$additional_user_fields[$i]]['label'],
+            'field' => $additional_user_fields[$i] . '_value'
+        );
+    }
+                       
+    $rs = $query->execute();
 
     $rows = array();
     $default_values = array();
@@ -630,6 +655,14 @@ function gentle_teams_season_teams_edit_form($form, $form_state, $sid, $mode, $t
                 'class' => array($row->tid == NULL ? 'not-in-team' : '')
             )
         );
+        
+        for ($i = 0; $i < count($additional_user_fields); $i++) {
+            $row_array = (array)$row;
+            $key = $additional_user_fields[$i] . '_value';
+            if (array_key_exists($key, $row_array)) {
+                $rows[$row->uid][$key] = $row_array[$key];
+            }
+        }
 
         if ($row->tid != NULL) {
             $default_values[$row->uid] = TRUE;
