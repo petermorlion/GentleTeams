@@ -132,9 +132,10 @@ function gentle_teams_season_teams_access($sid, $permission) {
 function gentle_teams_settings_form() {
   $form = array();
 
-  $form['gentle_teams_settings_additional_user_fields'] = array(
+  $form['gentle_teams_additional_user_fields'] = array(
     '#type' => 'textfield',
     '#title' => t('Additional user fields'),
+    '#default_value' => variable_get('gentle_teams_additional_user_fields'),
     '#required' => FALSE,
     '#description' => t('A comma-separated list of user fields to display in the overview of users. See possible fields below.'),
   );
@@ -142,17 +143,14 @@ function gentle_teams_settings_form() {
   $user_fields = array_keys(field_info_instances('user')['user']);
   $user_fields_string = implode(", ", $user_fields);
   
-  $form['gentle_teams_settings_additional_user_fields_list'] = array(
+  $form['gentle_teams_additional_user_fields_list'] = array(
       '#markup' => '<p>' . $user_fields_string . '</p>'
   );
 
-  $form['submit_button'] = array(
-      '#type' => 'submit',
-      '#value' => t('Submit'),
-  );
-
-  return $form;
+  return system_settings_form($form);
 }
+
+
 
 /**
  * Returns the form for the seasons overview.
