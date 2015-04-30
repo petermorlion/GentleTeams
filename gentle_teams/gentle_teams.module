@@ -136,7 +136,14 @@ function gentle_teams_settings_form() {
     '#type' => 'textfield',
     '#title' => t('Additional user fields'),
     '#required' => FALSE,
-    '#description' => t('Defines additional fields to display in the overview of users.'),
+    '#description' => t('A comma-separated list of user fields to display in the overview of users. See possible fields below.'),
+  );
+  
+  $user_fields = array_keys(field_info_instances('user')['user']);
+  $user_fields_string = implode(", ", $user_fields);
+  
+  $form['gentle_teams_settings_additional_user_fields_list'] = array(
+      '#markup' => '<p>' . $user_fields_string . '</p>'
   );
 
   $form['submit_button'] = array(
